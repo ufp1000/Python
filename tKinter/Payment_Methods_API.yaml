@@ -1,0 +1,749 @@
+# Every OpenAPI specification starts with the openapi keyword mentioning the version of the specification format. 
+# The version we use to document OASIS APIs is 3.0.1
+openapi: 3.0.1
+
+# The servers section specifies the API server and base URL. You can define one or several servers, 
+# such as DEV, SILO5, Pre-Prod, and production. The url field specifies the Server name of the host.
+# Specify both internal and external host names here
+servers:
+  - url: 'https://dmnh3o.manheim.com'
+    description: DEV Internal End Point
+  - url: 'https://tmnh7opub.oracleoutsourcing.com'
+    description: DEV External End Point
+  - url: 'https://smnh5o.manheim.com'
+    description: SILO5 Internal End Point
+  - url: 'https://smnh5opub.oracleoutsourcing.com'
+    description: SILO5 External End Point
+  - url: 'https://smnh2o.manheim.com'
+    description: Pre-Prod Internal End Point
+  - url: 'https://smnh2opub.oracleoutsourcing.com'
+    description: Pre-Prod External End Point
+  - url: 'https://ebizservices.manheim.com'
+    description: Production Internal End Point
+  - url: 'https://ebizservicespub.oracleoutsourcing.com'
+    description: Production External End Point
+
+# The info section contains information about the API, e.g. title, description (optional), version, contact for the API etc.    
+info:
+  # Define version of the API this document is for #
+  version: '1.0'
+  
+  # Define title of the API #  
+  title: PAYMENT METHODS API
+  
+  # Define support contact personal and his/her details, for the API #  
+  contact:
+    name: OASIS Support
+    email: rahul.mishra@coxautoinc.com
+    url: 'https://coxauto.service-now.com/ess/'
+  license:
+    name: Cox Automotive
+    url: 'http://www.coxautoinc.com'
+
+# The description field contains details about the API, like:
+#   - Release Notes
+#   - Purpose of the API
+#   - Architecture
+#   - Versioning
+#   - Application Authentication
+#   - End User Authorization for each consumer application
+
+  description: |-
+    # Release Notes: Version 1.0
+
+    > Below mentioned  fields are added in the applications array of GET method
+    response to support feature-F20127. These new fields will utilized by CPCSA
+    to print the gate pass and/or use them for determining if the gate pass can
+    be released. These changes resulted in the new version of the API. 
+
+    > No changes are made to the POST method in 2.5 version of the API. 
+
+      > - facilitatingLocationCode
+      > - facilitatingLocationName
+      > - soldToCustomerNumber
+      > - soldToCustomerName
+
+    > Feature-F20127 also has the requirement to return the universalKey, which
+    was already added in version 2.4 of the Payment Methods API.
+
+    #  Purpose
+
+    > This document addresses the requirements of Cox Automotive to provide an application programming interface (API) that returns eligible payment methods for customers from the Cox Automotive Wholesale Billing and Payments system that is built on Oracle’s E-Business Suite.
+    
+    > For this solution, the API, which is called the Payment Methods API , will be called by the following source systems to fetch the eligible payment methods for customers
+
+    >  1.  Remarketing Management Services (RMS) – Flex Platform
+    >  2.  Manheim - Customer Portal 
+    >  3.  Manheim - Customer Service Application 
+      
+    > This information will be available to Cox Automotive Customers and Employees . This API will only be used to retrieve information.  It cannot be used to create or update transactions.
+    
+    #  Definitions
+       > ### Oracle E-Business Suite (EBS)
+       > Oracle's E-Business Suite consists of a collection of enterprise resource planning applications.  The Wholesale Billing and Payments system leverages the EBS Trading Community, Order Management and Receivables applications to deliver a billing and payment system for the Cox Automotive wholesale businesses.
+      > ### Oracle Service Bus (OSB) 
+      > Oracle Service Bus is a configuration-based, policy-driven service bus designed for SOA life cycle management.  It provides message brokering with routing and transformation of messages, along with service monitoring and administration.
+      > ### JavaScript Object Notation (JSON)
+      > JSON is an open-standard format that uses human-readable text to transmit data Objects consisting of attribute–value pairs. It is the most common data format used for asynchronous browser/server communication
+      > ### Consignment
+      > A custom data Object that was created for the Wholesale Billing and Payments system that contains information about vehicle sales.  All buyer and seller invoices are linked to a consignment.
+      
+      > ### Manheim Customer Portal and Customer Service App (CP/CSA) 
+      > Web applications that are used by customers and employees to view invoices and make payments.
+      
+      > ### SalesForce.com (SFDC)
+      > Manheim’s Customer Relationship Management (CRM) system.
+      
+      > ### Arbitration
+      > Wholesale automotive buyers can file an arbitration claim with Manheim if the feel that a vehicle was misrepresented in a sale.  Manheim will evaluate and resolve the claim which can result in financial adjustments to both seller proceeds and buyer charges or the complete cancelation of the sale.  If Manheim is at fault the resolution may include Manheim acquiring the vehicle as an asset.
+      
+      > ### SFDC ACMS
+      > SalesForce Arbitration Case Management System.  Manheim has customized the case management module in SalesForce to manage the workflow of arbitrations from creation to resolution and approval.
+      
+      > ### SFDC CIMS
+      > SalesForce Customer Issue Management System (future).  Manheim also plans to use SalesForce in the future to manage the resolution of all customer issues including financial disputes.
+      
+      > ### DealShield
+      > Cox Automotive assurance service that provides a “no questions asked” guarantee to wholesale auction buyers.  Customers can return vehicles for a full refund if they have issues with their purchase.
+      
+      > ### Automated Clearing House (ACH)
+      > It is an electronic network for financial transactions in the United States. ACH processes large volumes of credit and debit transactions in batches. 
+      
+      > ### ACH credit
+      > Transfers include direct deposit, payroll and vendor payments. 
+      
+      > ### ACH direct
+      > Debit transfers include consumer payments on insurance premiums, mortgage loans, and other kinds of bills. Debit transfers also include new applications such as the point-of-purchase (POP) check conversion pilot program sponsored by the National Automated Clearing House Association (NACHA).
+      
+    #  Architecture
+      > In order to present/render transactions, Payments API accepts input parameters (request payload) from the calling application through a composite service built on OSB in JSON format. The output (response payload) is returned in JSON format to the calling application. This action is performed by GET method of the API.
+
+      > Similarly, in order to process/create transactions, Payment Methods API accepts input parameters (request payload) from the calling application through a composite service built on OSB in JSON format. Then the  API creates/updates transactions in Oracle EBS tables and returns back the status (response payload) is JSON format to the calling application. 
+    # Versioning
+      > Calling application passes Version as a field in the HTTPS header for both GET and POST methods.  API uses the version number to control what version of the JSON output needs to be returned for GET method and what version of API to be used for POST method.
+    # Application Authentication & Authorization 
+    ## Authentication
+      > Each calling application requires an Oracle Weblogic username and password to access the API. Value in the following httpS header fields need to be passed by the calling application-
+      
+      > - Application-UserName
+      > - Application-Password
+      
+    > Oracle SOA authenticates the application user credentials. If the
+    application user fails the authentication then the Oracle SOA returns 401
+    error message.
+    
+    ## Authorization
+    > The Application-UserName must also be set up as a user in Oracle E-Business.
+    
+    > The API uses Oracle E-Business Responsibilities and Function Security to determine what Payment Methods are returned to the calling application.  At least one of the following Functions must be associated with a Menu and Responsibility that is assigned to the Application UserName:
+    
+    > - 'MAN_AR_RECEIPT_CHECK',
+    > - 'MAN_AR_RECEIPT_ACH',
+    > - 'MAN_AR_RECEIPT_CASH',
+    > - 'MAN_AR_RECEIPT_FLOORPLAN',
+    > - 'MAN_AR_RECEIPT_MONEYORDER',
+    > - 'MAN_AR_RECEIPT_CASHIER',
+    > - 'MAN_AR_TRANSACTIONS_ALL',
+    > - 'MAN_AR_RECEIPT_ECHECK',                                   
+    > - 'MAN_AR_RECEIPT_INCOMINGACH',
+    > - 'MAN_AR_RECEIPT_WIRE',
+    > - 'MAN_AR_RECEIPT_RMSICPAYMENT'
+    
+    ## Authorized Users and Responsibilities
+    > The following table contains the Application Users that are currently authorized to access the Payment Methods API:
+
+    > - Application : RMS Flex
+    > - EBS Username : rmsflex
+    > - Assigned Responsibility : RMS FLEX API ACCESS
+    > - Associated Functions : 'MAN_AR_RECEIPT_ACH', 'MAN_AR_RECEIPT_FLOORPLAN’
+
+    # End User Authorization
+
+      > **Manheim Customer Portal (CP)**
+       > Payment Methods API considers the Manheim CP a trusted application and does not require that the customer user has an account in Oracle EBS. The Manheim CP is responsible for authenticating the customer user and providing the following parameters the httpS header-
+      > - Manheim-Customer-UserName
+      > - Manheim-Customer-Role
+      > - Manheim-Customer-RepNumber
+
+
+     
+
+     > If the CP sends a Customer Role of 'Order Services Rep' or 'Order Services Pay Rep', the API validates that the ‘RepNumber' parameter is provided in the httpS Header and returns an error if it is not valid.  A corresponding responsibility is created in Oracle EBS for each CP role to control the types of receipts that role can create in Oracle. One common application level user is created in Oracle EBS for both CP and CSA, and user name is identified as CPCSAUSER.  
+     
+
+    > **Manheim Customer Service Application (CSA)**
+
+
+     > Employee users are required to have an account in Oracle EBS before that can access the CSA.  Each user is assigned a specific CSA responsibility in EBS.  The Manheim CSA only passes the user name for the employee as 'Manheim-Employee-ID' in the httpS header when calling the API. If the employee user does not have an account with CSA responsibility assigned in Oracle EBS, then API returns an error message.  The Payment Methods API restricts the creation of types of receipts based on the responsibilities assigned to the passed employee user. One common application level user is created in Oracle EBS for both CP and CSA, and user name is identified as CPCSAUSER.
+      
+    > **Remarketing Management System (RMS)**
+        
+    > A new application level user "rmsuser" is created in Oracle EBS. RMS system
+    does not send end user employee  'Manheim-Employee-ID' in the httpS header
+    when calling the API, it only passes the application user. For POST method
+    call, Oracle EBS checks the application user authorization access for
+    creating the type of receipt (Check, ACH etc.) in Oracle EBS. If the
+    authorization fails then the Oracle EBS API returns an error message.  
+      
+      > **Profile, Preferences, and Notifications (PPN)**
+
+    > A new application level user "manppn" will be created in Oracle EBS for PPN
+    system to use while calling the API. PPN will not send end user employee 
+    'Manheim-Employee-ID' in the httpS header when calling the API, it will only
+    pass the application user. manppn user will not be provided authorization
+    for creating any type of receipts in Oracle EBS, i.e. any POST method call
+    initiated by manppn will be rejected by the Payment Methods API.
+      
+    Appropriate responsibilities are assigned to each of the above mentioned
+    Application users in Oracle EBS. API uses these responsibilities to control
+    the Output Expansions that an Application is authorized to access, during
+    GET method call. API returns an error message if the passed Application user
+    is not authorized for the requested output expansions.
+
+# This section provides details of additional external documentation information. 
+# Here, we  provide the url link to AN100 document in the sharepoint.
+externalDocs:
+  description: Find out more about Payment Methods API
+  url: >-
+    http://technology.man.co/Projects/home/G2G/Oracle%20APIs/Payment%20Methods%20API%201.0.docx
+  
+# The paths section defines the endpoint (URI) of the API. All paths are relative to the 
+# API host server URL defined in the servers section. The full request URL is 
+# constructed as <server-url>/path, for example the path of Payment Methods API is /paymentmethods
+# and calling URL is https://ebizservices.manheim.com/paymentmethods
+#
+# For each path, we define the operations (HTTP methods) that can be used to access that path. 
+# OpenAPI 3.0 supports get, post, put, patch, delete, head, options, and trace. A single path can support multiple operations, 
+# for example, GET /paymentmethods to get the payment methods details.
+
+# The path (/paymentmethods) needs to be defined only one time and within that path each operation/method needs to be defined separately, e.g.
+
+# /paymentmethods:
+# get:
+# …….
+# …….
+# …….
+# post:
+# …….
+# …….
+# …….
+
+    
+paths:
+  /paymentmethods:
+
+# Define here the parametrs that are common for all the operations. These are the global parameters 
+# All header level parameters are common for both get and post methods of the Payment Methods API  
+    #parameters:
+    parameters:
+      - in: header
+        name: Manheim-Employee-ID
+        required: false
+        schema:
+          type: string
+        description: Please enter a valid Oracle EBS User id
+        
+
+      - in: header
+        name: Manheim-Cust-Role
+        required: false
+        schema:
+          type: string
+          enum:
+            - ORDER_SVCS_AND_PAY_REP
+            - ORDER_SVCS_AND_PAY_COMP
+            - ADMIN
+            - ORDER_SVCS_REP
+        description: Please enter a valid CP Role (Applicable only for Customer Portal)
+
+      - in: header
+        name: Manheim-Cust-Rep-Number
+        required: false
+        schema:
+          type: string
+        description: >-
+          Please enter a valid 100 million Customer Rep number (Applicable only
+          for Customer Portal)
+          
+      - in: header
+        name: Manheim-Cust-User-Name
+        required: false
+        schema:
+          type: string
+        description: >-
+          Please enter a valid CP User Name (Applicable only for Customer Portal)
+
+    post:
+    
+    # Define here the type of security being used by the API method, e.g. HTTP basic authentication, OAuth2, API key etc. For most of our APIs we use HTTP basic authentication
+      security:
+        - basicAuth: []
+      
+      # Brief description of this API method
+      summary: Post Receipt Request
+      tags:
+        - Methods & Endpoints   #This value should always be 'Methods & Endpoints' for every defined method. You can define additional tags and description if there is a need to enter additional information about API Tags can be used for logical grouping of operations by resources.
+      
+      # Enter the operation id, e.g. getReceipts, postReceipts etc.
+      operationId: postReceipts
+      
+      # Enter both internal and external  complete endpoints for the API #
+      description: |-
+        | Environment    | Endpoint  | Type |
+        | ------- | ------------------------| ------ |
+        | DEV     | https://dmnh3o.manheim.com/paymentmethods | Internal |
+        | DEV     | https://tmnh7opub.oracleoutsourcing.com/paymentmethods | External |
+        | SILO5   | https://smnh5o.manheim.com/paymentmethods | Internal |
+        | SILO5   | https://smnh5opub.oracleoutsourcing.com/paymentmethods | External |
+        | PREPROD | https://smnh2o.manheim.com/paymentmethods | Internal |
+        | PREPROD | https://smnh2opub.oracleoutsourcing.com/paymentmethods | External |
+        | PROD    | https://ebizservices.manheim.com/paymentmethods | Internal |
+        | PROD    | https://ebizservicespub.oracleoutsourcing.com/paymentmethods | External | 
+        
+      parameters: 
+        - in: query     # All of our APIs use query type parameters
+          name: soldToCustomerNumber # This is parameter name
+          required: true  # This makes a parameter as required
+          schema:
+            type: string
+          example: "5064172"
+          description: >-
+            Number of customer that will receive the purchased item. This customer number is used to determine which Floorplans can be used to pay for the purchase.:
+
+              - Auction Access 5 million (Dealer)
+              - Manheim 4.9 million (Commercial)
+              - Manheim 7 million (Retail)
+              - RMS Flex Account ID
+              
+        - in: query
+          name: billToCustomerNumber
+          required: false
+          schema:
+            type: string
+          description: >-
+           Number of customer that is responsible for paying for the purchased item. This customer number is used to determine which Bank Accounts can be used to pay for the purchase. Payer Relationships for more details on how the Bill To Customer is derived by the API when this input parameter is not provided by the calling application.:
+          
+              - Auction Access 5 million (Dealer)
+              - Manheim 4.9 million (Commercial)
+              - Manheim 7 million (Retail)
+              - RMS Flex Account ID          
+
+        - in: query
+          name: includeBasicFloorplans
+          required: true
+          schema:
+            type: string
+            example: "true"
+            enum: ["true","false"]
+          description: >-
+            -TRUE – Include Basic Floorplans in the customerPaymentMethods output array.
+            -FALSE or not provided – Only Advantage Floorplans are provided in the customerPaymentMethods output array.
+            
+        - in: query
+          name: vehicleReferenceId
+          required: false
+          schema:
+            type: string # Define date parameter as string, otherwise Swagger editor may throw error
+            example: RMS00612
+          description: |-
+            Source System ID for the Vehicle.
+            
+        - in: query
+          name: vehicleYear  
+          required: false
+          schema:
+            type: string   # Define date parameter as string, otherwise Swagger editor may throw error
+            example: 2015
+          description: |-
+            Original Vehicle Sold Year.
+            
+        - in: query
+          name: maxOdometerReading
+          required: false
+          schema:
+            type: string
+            example: 10000
+          description: >-
+            Vehicle Odometer reading at sale.
+            
+        - in: query
+          name: asIsIndicator
+          required: false
+          schema:
+            type: string
+            example: "true"
+            enum: ["true","false"]
+          description: >-
+            ‘True’ - Indicates a vehicle being sold “As Is.” A red light is illuminated while bidding is underway on such a vehicle.   
+            
+        - in: query
+          name: totalVehicleDebitAmount
+          required: false
+          schema:
+            type: string
+            example: 100000            
+          description: >-
+            Amount the vehicle is Bid/Bought for. Total balance of unpaid debits where the Invoice Type is SELLER, SELLER ARB, BUYER or BUYER ARB and the customer is the BillTo
+            
+        - in: query
+          name: salvageUnitIndicator
+          required: false
+          schema:
+            type: string
+            example: "true"
+            enum: ["true","false"]
+          description: >-
+            A vehicle that is not economical to repair and is sold for the value of its salvageable parts.
+
+        - in: query
+          name: salesChannel
+          required: false
+          schema:
+            type: string
+            example: "RSA"
+          description: >-
+            A vehicle that is not economical to repair and is sold for the value of its salvageable parts.
+
+        - in: query
+          name: vehicleType
+          required: false
+          schema:
+            type: string
+            example: "T"            
+          description: >-
+            A vehicle that is not economical to repair and is sold for the value of its salvageable parts.
+
+        - in: query
+          name: saleType
+          required: false
+          schema:
+            type: string
+            example: "O"            
+          description: >-
+            A vehicle that is not economical to repair and is sold for the value of its salvageable parts.
+            
+        - in: query
+          name: hondaFloorplanThresholdFlag
+          required: false
+          schema:
+            type: string
+            example: "true"
+            enum: ["true","false"]
+          description: >-
+            Used for Floorplan Agencies to determine the eligibility line. Ex Honda uses Cars sold above a threshold pricepoint to be financed on a X eligibility line vs Y for others
+            
+        - in: query
+          name: sellerAccount
+          required: false
+          schema:
+            type: string
+          description: >-
+            Used for flooring with a few agencies - Ford, Nissan
+      
+      # Define POST Method Request body data elements here #
+      requestBody:
+        description: This is POST methods request payload body
+        required: true
+        content:
+          application/json:  #This represents that API accepts request payload in json format 
+            schema:
+            
+              # API post method accepts an object containing the below data elements #
+              type: object
+              properties:
+                customerDetails:
+                  type: object            
+                  # API post method accepts an object containing the below data elements #                  
+                  $ref: '#/components/schemas/customerDetails'
+              
+              # In the POST method request payload, below are the required data elements #
+              required:
+                - soldToCustomerNumber
+                - includeBasicFloorplans
+      
+      # Define POST Method Responses Here #   
+      responses:
+      # Define success response to be returned by the get method #
+        '200':
+          description: OK
+          content:
+            application/json: #This represents that API response payload is in json
+              schema:
+                type: object
+                properties:
+                  paymentMethodDetails:
+                    type: object
+                    $ref: '#/components/schemas/paymentMethodDetails'
+                                
+        # Define error responses to be returned by the get method #
+        '400':
+          description: >-
+            - Application did not provide required HTTPS header fields
+            
+            - customerAccountNumber not found
+            
+            - Other Exceptions – ex. Data issues
+        '401':
+          description: >-
+            - Authentication Required (invalid application user name or password)
+            
+            - Not Authorized (application user name is not authorized to call this API)
+        '404':
+          description: >-
+            - customerNumber not found
+
+            - Bank account is either inactive or invalid for the passed bank
+            account id
+        '503':
+          description: >-
+            - Time Out on querying EBS
+            
+            - The calling system can retry the calling the Payment Methods API for server errors.  The recommendation is to retry every 15 minutes for up to 8 hours before timing out.
+
+# Define common data elements in the below section that are referenced in this document as $ref data elements #
+components:
+  schemas:
+    # Define vehicle attributes array #
+    vehicleAttributes:
+      type: array
+      description: This array contains receipt header level information
+      
+      # applications array contains an object with the following data elements#
+      items:
+        type: object
+        properties:
+          vehicleReferenceId:
+            type: string
+            maxLength: 120
+            description: >-
+              Vehicle Reference Id
+          vehicleYear:
+            type: integer
+            description: >-
+              Vehicle Year
+          maxOdometerReading:
+            type: integer
+            description: >-
+              Max Odometer Reading
+          asIsIndicator:
+            type: string
+            maxLength: 5
+            description: >-
+              As-Is Indicator
+            enum: 
+              ["true",
+              "false"]
+          totalVehicleDebitAmount:
+            type: number
+            format: float
+            description: >-
+              Total Vehicle Debit Amount
+          salvageUnitIndicator:
+            type: string
+            maxLength: 5
+            description: >-
+              Salvage Unit Indicator
+            enum: 
+              ["true",
+              "false"]                            
+          salesChannel:
+            type: string
+            maxLength: 120
+            description: >-
+              Sales Channel
+          vehicleType:
+            type: string
+            maxLength: 120
+            description: >-
+              Vehicle Type
+          saleType:
+            type: string
+            maxLength: 120
+            description: >-
+              Sale Type
+          hondaFloorplanThresholdFlag:
+            type: string
+            maxLength: 5
+            description: >-
+              Honda Floorplan Threshold Flag
+            enum: 
+              ["true",
+              "false"]                            
+          sellerAccount:
+            type: string
+            maxLength: 120
+            description: >-
+              Seller Account
+    
+    # receipts array references receiptDetails object #
+    customerDetails:
+      type: object
+      description: >-
+        This object contains customer, auction location, payer, and receipt 
+        application information.
+      properties:
+        soldToCustomerNumber:
+          type: string
+          description: >-
+            Sold To Customer Number
+        billToCustomerNumber:
+          type: string
+          description: >-
+            Bill To Customer Number
+        includeBasicFloorplans:
+          type: string
+          description: >-
+            Include Basic Floorplans
+          enum: 
+             ["true", "false"]
+        vehicleAttributes:
+          $ref: '#/components/schemas/vehicleAttributes'
+         
+          
+    
+    # Define eligiblePaymentMethods data object #
+    eligiblePaymentMethods:
+      type: array
+      description: >-
+        Nested Array within EligiblePaymentMethods to provide the payment methods that are eligible for the Vehicle referenced above.
+        
+      items:
+        type: object
+        properties:
+          paymentMethodIDs:
+            type: integer
+            description: >-
+              ID of payment method from the above customerPaymentMethods Array that the Customer and Vehicle is eligible. Do not repeat here the generic Payment methods and FPs (Basic, Basic Plus) that are not specific to a Customer /Vehicle  
+            maxLength: 50
+
+    # Define vehicles data object #
+    Vehicles:
+      type: array
+      description: >-
+        This array returns the reference for each vehicle that was provide in the vehicleAttributes input array.
+        
+      # vehicles array contains an object with the following data elements#
+      items:
+        type: object
+        properties:
+          vehicleReferenceId:
+            type: string
+            description: >-
+              Source System ID for the Vehicle.
+            maxLength: 120
+          eligiblePaymentMethods:
+            $ref: '#/components/schemas/eligiblePaymentMethods'      
+    
+    # Define payer data object #
+    customerPaymentMethods:
+      type: array
+      description: >-
+        Contains an array of vehicle attributes
+      
+      items:
+        type: object
+        properties:
+          paymentMethodId:
+            type: string
+            description: >-
+              ID of payment method
+            maxLength: 50
+          paymentMethodType:
+            type: string
+            description: >-
+              Payment Methods returned:
+              1.  open to all such as Cash, CC, MO, Basic/ Basic Plus Floor Plans are returned. 
+              2.ACH , CHECK for the customer’s Accounts ( could be more than one each) registered in Manheim
+              3. Customer eligible Floor Plans
+              Note: ACH Credit are NOT to be returned for this API Call.
+            maxLength: 120
+          paymentMethodName:
+            type: string
+            description: >-
+              Account name for the payment method.
+            maxLength: 120
+          paymentMethodAccount:
+            type: string
+            description: >-
+              Masked account number for the payment method.
+            maxLength: 120 
+          agencyDealerNumber:
+            type: string
+            description: >-
+              Agency Dealer Number.
+            maxLength: 120             
+          paymentMethodAvailableAmount:
+            type: number
+            format: float
+            description: >-
+              Payment Method Available Amount.
+          creditProgramCode:
+            type: string
+            description: >- 
+              Eligible Credit Programs available for the agency. If the agency does not have credit programs then NULL. Applies to FloorPlans only
+            maxLength: 120
+          agencyAdminFeeAmount:
+            type: number
+            format: float
+            description: >- 
+              Agency fees if floored with the BASIC/BASIC PLUS Agency. Applies to FloorPlans only. The calling application must add this fee to the payment when calling the Receipts API to post a payment.
+          allowPSIFlooring:
+            type: string
+            description: >- 
+              Agency allowance on flooring Assurance transactions linked to the consignment – PSI. Applies to FloorPlans only.
+            maxLength: 5
+          allowDSFlooring:
+            type: string
+            description: >- 
+              Agency allowance on flooring Assurance transactions linked to the consignment – DealSheild. Applies to FloorPlans only.
+            maxLength: 5
+          paymentMethodFee:
+            type: number
+            format: float
+            description: >- 
+              Fee that will be added to the invoice if this payment method is used. Cash handling fee is stored in profile option "MAN: AR Cash Handling Fee". It is computed at consignment level instead of order or invoice. The calling application must add this fee when calling the Receipts API to post a payment.
+          floatContractAllowed:
+            type: string
+            description: >- 
+              Agency allows customer to use Float Contract – Currently applies to AFC only
+            maxLength: 5
+          customerEligibile:
+            type: string
+            description: >- 
+              TRUE – Payment method can be used for any vehicle
+              FALSE – Payment method eligibility will be retuned for each vehicle
+            enum:
+              ["true","false"]
+            maxLength: 5
+    
+    # Define paymentMethodDetails array with below data elements #
+    paymentMethodDetails:
+      type: object
+      description: 
+        This array contains application information of the receipt.
+      properties:
+        soldToCustomerNumber:
+          type: string
+          description: >-
+            Number of customer that will receive the purchased item.
+            This customer number is used to determine which Floorplans can be used to pay for the purchase. 
+        billToCustomerNumber:
+          type: string
+          description: >-
+            Number of customer that will receive the purchased item.
+            This customer number is used to determine which Floorplans can be used to pay for the purchase.             
+        customerDbaName:
+          type: string
+          description: >-
+            Number of customer that is responsible for paying for the 
+          maxLength: 240
+        customerPaymentMethods:
+          $ref: '#/components/schemas/customerPaymentMethods'
+        Vehicles:
+          $ref: '#/components/schemas/Vehicles'
+
+  # This is the type of security being used by the API as whole, e.g. HTTP basic authentication, OAuth2, API key etc. For most of our APIs we use HTTP basic authentication #          
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
